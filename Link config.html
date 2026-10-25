@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stream Link Formatter & Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center py-10 px-4">
+
+  <div class="w-full max-w-2xl bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800">
+    <h1 class="text-2xl font-bold mb-2 text-sky-400 text-center">Stream Config Link Generator</h1>
+    <p class="text-slate-400 text-sm mb-6 text-center">Apni details niche bharein aur formatted string hasil karein.</p>
+
+    <!-- Form -->
+    <form id="configForm" class="space-y-4">
+      
+      <!-- Media Streaming URL -->
+      <div>
+        <label class="block text-sm font-medium mb-1 text-slate-300">Media Streaming URL / Text <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input type="text" id="streamUrl" required placeholder="Kuch bhi daalein (No URL validation)" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-4 pr-10 py-2 text-slate-100 focus:outline-none focus:border-sky-500 text-sm">
+          <button type="button" onclick="clearField('streamUrl')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-base font-bold cursor-pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- Cookie Value -->
+      <div>
+        <label class="block text-sm font-medium mb-1 text-slate-300">Cookie Value</label>
+        <div class="relative">
+          <textarea id="cookieVal" rows="2" placeholder="yaha cookies ki value aayengi" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-3 pr-10 py-2 text-slate-100 focus:outline-none focus:border-sky-500 font-mono text-xs"></textarea>
+          <button type="button" onclick="clearField('cookieVal')" class="absolute right-3 top-3 text-slate-400 hover:text-white text-base font-bold cursor-pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- Referer & Origin -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Referer Value</label>
+          <div class="relative">
+            <input type="text" id="refererVal" placeholder="yaha referer ki value aayegi" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-3 pr-10 py-2 text-slate-100 focus:outline-none focus:border-sky-500 text-sm">
+            <button type="button" onclick="clearField('refererVal')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-base font-bold cursor-pointer">✕</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Origin Value</label>
+          <div class="relative">
+            <input type="text" id="originVal" placeholder="yaha origin ki value aayegi" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-3 pr-10 py-2 text-slate-100 focus:outline-none focus:border-sky-500 text-sm">
+            <button type="button" onclick="clearField('originVal')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-base font-bold cursor-pointer">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRM License URL -->
+      <div>
+        <label class="block text-sm font-medium mb-1 text-slate-300">DRM License URL / Text</label>
+        <div class="relative">
+          <input type="text" id="drmUrl" placeholder="yaha drm license url ki values aayegi" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-4 pr-10 py-2 text-slate-100 focus:outline-none focus:border-sky-500 text-sm">
+          <button type="button" onclick="clearField('drmUrl')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-base font-bold cursor-pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 rounded-lg transition-colors cursor-pointer text-sm shadow-md">
+        Generate Formatted String
+      </button>
+    </form>
+
+    <!-- Result Section -->
+    <div id="resultBox" class="hidden mt-6 p-4 bg-slate-950 rounded-lg border border-sky-500/40">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-sky-400">Generated Output:</h3>
+        <button onclick="copyOutput()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer">Copy to Clipboard</button>
+      </div>
+      <textarea id="outputResult" readonly rows="4" class="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs text-sky-300 font-mono focus:outline-none select-all"></textarea>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('configForm');
+    const resultBox = document.getElementById('resultBox');
+    const outputResult = document.getElementById('outputResult');
+
+    // Individual field clear function
+    function clearField(fieldId) {
+      document.getElementById(fieldId).value = '';
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const streamUrl = document.getElementById('streamUrl').value.trim();
+      const cookieVal = document.getElementById('cookieVal').value.trim();
+      const refererVal = document.getElementById('refererVal').value.trim();
+      const originVal = document.getElementById('originVal').value.trim();
+      const drmUrl = document.getElementById('drmUrl').value.trim();
+
+      let parts = [];
+      if (cookieVal) parts.push(`Cookie=${cookieVal}`);
+      if (refererVal) parts.push(`Referer=${refererVal}`);
+      if (originVal) parts.push(`Origin=${originVal}`);
+      if (drmUrl) {
+        parts.push(`drmScheme=clearkey`);
+        parts.push(`drmLicense=${drmUrl}`);
+      }
+
+      let finalString = streamUrl;
+      if (parts.length > 0) {
+        finalString += "|" + parts.join("&");
+      }
+
+      outputResult.value = finalString;
+      resultBox.classList.remove('hidden');
+    });
+
+    function copyOutput() {
+      outputResult.select();
+      document.execCommand('copy');
+      // Alert message hata diya gaya hai
+    }
+  </script>
+</body>
+</html> 
